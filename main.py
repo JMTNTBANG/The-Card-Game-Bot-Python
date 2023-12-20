@@ -34,3 +34,9 @@ except Exception as error:
     print("Some Unknown Error has happened, please create an issue on GitHub with the following information:")
     raise error
 
+intents = discord.Intents.all()
+client = discord.Client(intents=intents)
+del intents
+
+if __name__ == "__main__":
+    client.run(config.token)
