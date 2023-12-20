@@ -46,6 +46,7 @@ async def on_ready():
     await client.change_presence(activity=discord.Game(name="IN DEV, DONT USE ANY COMMANDS"), status=discord.Status.dnd)
     # Initialize Modules
     uno.init()
+    tree.add_command(uno.uno_commands)
     await tree.sync()
     print("Commands Synced")
 
