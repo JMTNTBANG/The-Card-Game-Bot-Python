@@ -1,3 +1,4 @@
+import uno
 try:
     import discord
 except ImportError:
@@ -36,7 +37,18 @@ except Exception as error:
 
 intents = discord.Intents.all()
 client = discord.Client(intents=intents)
+tree = discord.app_commands.CommandTree(client)
 del intents
+
+@client.event
+async def on_ready():
+    print(f"Logged in as {client.user}")
+    await client.change_presence(activity=discord.Game(name="IN DEV, DONT USE ANY COMMANDS"), status=discord.Status.dnd)
+    # Initialize Modules
+    uno.init()
+    await tree.sync()
+    print("Commands Synced")
+
 
 if __name__ == "__main__":
     client.run(config.token)

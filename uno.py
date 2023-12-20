@@ -1,3 +1,6 @@
+import discord
+import main
+
 """
 Colors:
 0: Red
@@ -45,5 +48,6 @@ class UNO:
         self.deck = self.gen_deck()
 
 
-Game = UNO()
+def init():
 
+    print("Initialized UNO")
