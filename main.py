@@ -1,11 +1,10 @@
+import json
 import uno
 try:
     import discord
 except ImportError:
     print("Please install all needed dependencies before running!")
     exit(1)
-
-import json
 
 
 class Config:
@@ -40,15 +39,42 @@ client = discord.Client(intents=intents)
 tree = discord.app_commands.CommandTree(client)
 del intents
 
+
 @client.event
 async def on_ready():
     print(f"Logged in as {client.user}")
     await client.change_presence(activity=discord.Game(name="IN DEV, DONT USE ANY COMMANDS"), status=discord.Status.dnd)
-    # Initialize Modules
-    uno.init()
-    tree.add_command(uno.uno_commands)
     await tree.sync()
     print("Commands Synced")
+
+"""
+UNO MODULE
+"""
+
+uno_commands = discord.app_commands.Group(
+    name="uno",
+    description="UNO Game Commands"
+)
+tree.add_command(uno_commands)
+
+
+@uno_commands.command(name="start", description="Start an UNO Game")
+async def self(interaction: discord.Interaction):
+    await interaction.response.send_message("Created Game, React with ✅ to start the game", ephemeral=True)
+    embed = discord.Embed(
+        title=f"{interaction.user} Wants to start an UNO Game",
+        description="Click Below to join/leave"
+    )
+    embed.add_field(name="Player List", value="")
+    embed.add_field(name="", value=interaction.user.mention, inline=False)
+    view = discord.ui.View(timeout=None)
+    join_button = discord.ui.Button(label="Join Game", style=discord.ButtonStyle.green)
+    leave_button = discord.ui.Button(label="Leave Game", style=discord.ButtonStyle.red)
+    view.add_item(join_button)
+    view.add_item(leave_button)
+    message = await interaction.channel.send(content="UNO Game", embed=embed, view=view)
+    join_button.callback = uno.join_leave_callback(True, message)
+    leave_button.callback = uno.join_leave_callback(False, message)
 
 
 if __name__ == "__main__":
