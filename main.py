@@ -46,6 +46,13 @@ async def on_ready():
     await client.change_presence(activity=discord.Game(name="IN DEV, DONT USE ANY COMMANDS"), status=discord.Status.dnd)
     await tree.sync()
     print("Commands Synced")
+    for guild in client.guilds:
+        category_exists = False
+        for category in guild.categories:
+            if category.name == "UNO":
+                category_exists = True
+        if not category_exists:
+            await guild.create_category_channel("UNO")
 
 """
 UNO MODULE
