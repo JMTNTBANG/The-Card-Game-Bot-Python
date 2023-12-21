@@ -93,6 +93,14 @@ optional = false
 python-versions = ">=3.7"
 
 [[package]]
+name = "parse"
+version = "1.20.0"
+description = "parse() is the opposite of format()"
+category = "main"
+optional = false
+python-versions = "*"
+
+[[package]]
 name = "yarl"
 version = "1.9.4"
 description = "Yet another URL library"
@@ -107,7 +115,7 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.10"
-content-hash = "8c3a9384c893b4b9c3a80e60e854211e5082c8f61959eec884e6168994052886"
+content-hash = "b2148afc010de66e66cfd2ffc6a5884c06ac5593177b09f4030ec057a85b66c0"
 
 [metadata.files]
 aiohttp = []
@@ -118,4 +126,5 @@ attrs = []
 frozenlist = []
 idna = []
 multidict = []
+parse = []
 yarl = []

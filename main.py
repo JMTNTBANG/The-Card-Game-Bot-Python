@@ -58,6 +58,8 @@ async def on_ready():
 UNO MODULE
 """
 
+uno_games = []
+
 uno_commands = discord.app_commands.Group(
     name="uno",
     description="UNO Game Commands"
@@ -83,6 +85,15 @@ async def self(interaction: discord.Interaction):
     join_button.callback = uno.join_leave_callback(True, message)
     leave_button.callback = uno.join_leave_callback(False, message)
 
+
+@client.event
+async def on_reaction_add(reaction, user):
+    if reaction.message.content == "UNO Game" \
+            and reaction.message.author == client.user \
+            and user.mention == reaction.message.embeds[0].fields[1].value \
+            and reaction.emoji == "✅":
+        await reaction.message.reply("Starting Game...")
+        await uno.start_game(user, reaction.message.guild, reaction.message)
 
 if __name__ == "__main__":
     client.run(config.token)

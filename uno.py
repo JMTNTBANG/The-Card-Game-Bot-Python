@@ -1,4 +1,7 @@
 import discord
+import parse
+
+import main
 
 """
 Colors:
@@ -45,6 +48,9 @@ class UNO:
 
     def __init__(self):
         self.deck = ""
+        self.guild: discord.Guild
+        self.channel: discord.TextChannel
+        self.members = [discord.Member]
         self.gen_deck()
 
 
@@ -81,3 +87,21 @@ def join_leave_callback(join: bool, message: discord.Message):
                 await interaction.response.send_message("You're Not in This Game!", ephemeral=True)
 
     return callback
+
+
+async def start_game(owner: discord.Member, guild: discord.Guild, lobby: discord.Message):
+    for category in guild.categories:
+        if category.name == "UNO":
+            game = UNO()
+            game.guild = guild
+            game.channel = await category.create_text_channel(f"{owner.display_name}'s Game")
+            for user in lobby.embeds[0].fields:
+                if user != lobby.embeds[0].fields[0]:
+                    user = guild.get_member(int(parse.parse("<@{}>", user.value)[0]))
+                    thread = await game.channel.create_thread(
+                        name=user.display_name
+                    )
+                    await thread.send(user.mention)
+                    game.members.append(user)
+                    main.uno_games.append(game)
+            break
