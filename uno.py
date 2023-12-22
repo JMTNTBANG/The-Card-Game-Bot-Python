@@ -1,22 +1,24 @@
 import discord
 import parse
+import random
 
 import main
 
-"""
-Colors:
-0: Red
-1: Orange
-2: Green
-3: Blue
-4: Wild
 
-Kinds:
-0: Normal
-1: Skip
-2: Reverse
-3: Draw
-"""
+colors = {
+    0: "Red",
+    1: "Yellow",
+    2: "Green",
+    3: "Blue",
+    4: "Wild"
+}
+
+kinds = {
+    0: "Normal",
+    1: "Skip",
+    2: "Reverse",
+    3: "Draw"
+}
 
 
 # Classes
@@ -26,6 +28,17 @@ class UNO:
             self.color = color
             self.number = number
             self.kind = kind
+
+    class Player:
+        def __init__(self, member: discord.Member, thread: discord.Thread, deck: list):
+            self.user = member
+            self.thread = thread
+            hand = []
+            for i in range(7):
+                drawn_card = random.choice(deck)
+                hand.append(drawn_card)
+                deck.remove(drawn_card)
+            self.hand = hand
 
     def gen_deck(self):
         deck = []
