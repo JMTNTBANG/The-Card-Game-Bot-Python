@@ -60,11 +60,19 @@ class UNO:
         self.deck = deck
 
     def __init__(self):
-        self.deck = ""
+        self.deck = []
         self.guild: discord.Guild
         self.channel: discord.TextChannel
-        self.members = [discord.Member]
+        self.members = []
+        self.current_player: UNO.Player
         self.gen_deck()
+        first_card = random.choice(self.deck)
+        self.deck.remove(first_card)
+        self.current_card: UNO.Card = first_card
+
+
+def print_card(card: UNO.Card):
+    return f"{kinds[card.kind]} {colors[card.color]} {card.number}"
 
 
 def join_leave_callback(join: bool, message: discord.Message):
@@ -115,6 +123,10 @@ async def start_game(owner: discord.Member, guild: discord.Guild, lobby: discord
                         name=user.display_name
                     )
                     await thread.send(user.mention)
-                    game.members.append(user)
-                    main.uno_games.append(game)
+                    player = UNO.Player(user, thread, game.deck.copy())
+                    for card in player.hand:
+                        game.deck.remove(card)
+                    game.members.append(player)
+            game.current_player = game.members[0]
+            main.uno_games[game.channel.created_at] = game
             break
