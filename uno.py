@@ -124,21 +124,31 @@ async def show_hands(game: UNO, emojis: dict):
         await player.thread.send(message)
 
 
-async def play_card(game: UNO, message: discord.Message, emojis: dict):
-    color, number_kind = parse.parse("{} {}", message.content)
-    if color.lower() in colors:
-        if number_kind in kinds:
-            await game.channel.send(f"Player Played Special Card {color} {number_kind}")
-        else:
-            await game.channel.send(f"Player Played {color} {number_kind}")
-
-
 async def next_turn(game: UNO, emojis: dict):
     await show_hands(game, emojis)
     await game.channel.send(f"## Current Card: \n"
                             f"# {print_card(game.current_card, emojis)}\n"
                             f"# It is now {game.current_player.user.mention}s Turn!")
     uno_games[game.channel.created_at] = game
+
+
+async def play_card(game: UNO, message: discord.Message, emojis: dict):
+    color, number_kind = parse.parse("{} {}", message.content)
+    if color.lower() in colors:
+        for player in game.members:
+            if player.user == message.author:
+                for card in player.hand:
+                    if colors[card.color] == color.lower() \
+                            and kinds[card.kind] == number_kind.lower() \
+                            or number_kind.isnumeric() and card.number == int(number_kind):
+                        if card.color == game.current_card.color \
+                                or card.kind == game.current_card.kind and kinds[card.kind] != "normal" \
+                                or card.number == game.current_card.number:
+                            game.current_card = card
+                            player.hand.remove(card)
+                            await next_turn(game, emojis)
+                            break
+                break
 
 
 async def start_game(owner: discord.Member, guild: discord.Guild, lobby: discord.Message, emojis: dict):
