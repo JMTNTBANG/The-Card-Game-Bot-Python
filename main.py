@@ -58,7 +58,7 @@ async def on_ready():
 UNO MODULE
 """
 
-uno_games = []
+uno_games = {}
 
 uno_commands = discord.app_commands.Group(
     name="uno",
