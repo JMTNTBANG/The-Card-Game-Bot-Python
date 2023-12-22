@@ -71,8 +71,12 @@ class UNO:
         self.current_card: UNO.Card = first_card
 
 
-def print_card(card: UNO.Card):
-    return f"{kinds[card.kind]} {colors[card.color]} {card.number}"
+def print_card(card: UNO.Card, emojis: dict):
+    if card.number == -1:
+        return emojis[f'{card.kind}{card.color}_1']
+    else:
+        return emojis[f'{card.kind}{card.color}{card.number}']
+    # return f"{kinds[card.kind]} {colors[card.color]} {card.number}"
 
 
 def join_leave_callback(join: bool, message: discord.Message):
@@ -110,21 +114,23 @@ def join_leave_callback(join: bool, message: discord.Message):
     return callback
 
 
-async def show_hands(game: UNO):
+async def show_hands(game: UNO, emojis: dict):
     for player in game.members:
         message = ""
         for card in player.hand:
-            message += print_card(card) + "\n"
+            message += print_card(card, emojis) + " "
         await player.thread.send(message)
 
 
-async def next_turn(game: UNO):
-    await show_hands(game)
-    await game.channel.send(f"## Current Card: \n{print_card(game.current_card)}\n# It is now {game.current_player.user.mention}s Turn!")
+async def next_turn(game: UNO, emojis: dict):
+    await show_hands(game, emojis)
+    await game.channel.send(f"## Current Card: \n"
+                            f"# {print_card(game.current_card, emojis)}\n"
+                            f"# It is now {game.current_player.user.mention}s Turn!")
     main.uno_games[game.channel.created_at] = game
 
 
-async def start_game(owner: discord.Member, guild: discord.Guild, lobby: discord.Message):
+async def start_game(owner: discord.Member, guild: discord.Guild, lobby: discord.Message, emojis: dict):
     for category in guild.categories:
         if category.name == "UNO":
             game = UNO()
@@ -143,5 +149,5 @@ async def start_game(owner: discord.Member, guild: discord.Guild, lobby: discord
                     game.members.append(player)
             game.current_player = game.members[0]
             main.uno_games[game.channel.created_at] = game
-            await next_turn(game)
+            await next_turn(game, emojis)
             break

@@ -37,6 +37,7 @@ except Exception as error:
 intents = discord.Intents.all()
 client = discord.Client(intents=intents)
 tree = discord.app_commands.CommandTree(client)
+emojis = {}
 del intents
 
 
@@ -53,6 +54,13 @@ async def on_ready():
                 category_exists = True
         if not category_exists:
             await guild.create_category_channel("UNO")
+        if guild.name == "Card Game Bot Server":
+            for emoji in guild.emojis:
+                if emoji.animated:
+                    emojis[emoji.name] = f"<a:{emoji.name}:{emoji.id}>"
+                else:
+                    emojis[emoji.name] = f"<:{emoji.name}:{emoji.id}>"
+            print("emojis loaded")
 
 """
 UNO MODULE
@@ -93,7 +101,7 @@ async def on_reaction_add(reaction, user):
             and user.mention == reaction.message.embeds[0].fields[1].value \
             and reaction.emoji == "✅":
         await reaction.message.reply("Starting Game...")
-        await uno.start_game(user, reaction.message.guild, reaction.message)
+        await uno.start_game(user, reaction.message.guild, reaction.message, emojis)
 
 if __name__ == "__main__":
     client.run(config.token)
