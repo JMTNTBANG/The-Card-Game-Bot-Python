@@ -116,12 +116,13 @@ def join_leave_callback(join: bool, message: discord.Message):
     return callback
 
 
-async def show_hands(game: UNO, emojis: dict):
+async def show_hands(game: UNO, emojis: dict, specific_player: UNO.Player = None):
     for player in game.members:
-        message = ""
-        for card in player.hand:
-            message += print_card(card, emojis) + " "
-        await player.thread.send(message)
+        if specific_player is None or player == specific_player:
+            message = ""
+            for card in player.hand:
+                message += print_card(card, emojis) + " "
+            await player.thread.send(message)
 
 
 async def next_turn(game: UNO, emojis: dict):
@@ -133,22 +134,33 @@ async def next_turn(game: UNO, emojis: dict):
 
 
 async def play_card(game: UNO, message: discord.Message, emojis: dict):
-    color, number_kind = parse.parse("{} {}", message.content)
-    if color.lower() in colors:
-        for player in game.members:
-            if player.user == message.author:
-                for card in player.hand:
-                    if colors[card.color] == color.lower() \
-                            and kinds[card.kind] == number_kind.lower() \
-                            or number_kind.isnumeric() and card.number == int(number_kind):
-                        if card.color == game.current_card.color \
-                                or card.kind == game.current_card.kind and kinds[card.kind] != "normal" \
-                                or card.number == game.current_card.number:
-                            game.current_card = card
-                            player.hand.remove(card)
-                            await next_turn(game, emojis)
-                            break
-                break
+    for player in game.members:
+        if player.user == message.author:
+            if message.content.lower() == "draw":
+                drawn_card = random.choice(game.deck)
+                player.hand.append(drawn_card)
+                game.deck.remove(drawn_card)
+                await show_hands(game, emojis, player)
+                uno_games[game.channel.created_at] = game
+            else:
+                try:
+                    color, number_kind = parse.parse("{} {}", message.content)
+                except TypeError:
+                    color = parse.parse("{}", message.content)
+                    number_kind = "-1"
+                if color.lower() in colors:
+                    for card in player.hand:
+                        if colors[card.color] == color.lower() \
+                                and kinds[card.kind] == number_kind.lower() \
+                                or number_kind.isnumeric() and card.number == int(number_kind):
+                            if card.color == game.current_card.color \
+                                    or card.kind == game.current_card.kind and kinds[card.kind] != "normal" \
+                                    or card.number == game.current_card.number:
+                                game.current_card = card
+                                player.hand.remove(card)
+                                await next_turn(game, emojis)
+                                break
+            break
 
 
 async def start_game(owner: discord.Member, guild: discord.Guild, lobby: discord.Message, emojis: dict):
