@@ -61,12 +61,12 @@ async def on_ready():
                 else:
                     emojis[emoji.name] = f"<:{emoji.name}:{emoji.id}>"
             print("emojis loaded")
+    pass
 
 """
 UNO MODULE
 """
 
-uno_games = {}
 
 uno_commands = discord.app_commands.Group(
     name="uno",
@@ -102,6 +102,16 @@ async def on_reaction_add(reaction, user):
             and reaction.emoji == "✅":
         await reaction.message.reply("Starting Game...")
         await uno.start_game(user, reaction.message.guild, reaction.message, emojis)
+
+@client.event
+async def on_message(message: discord.Message):
+    if not message.author.bot:
+        if isinstance(message.channel, discord.Thread):
+            for game in uno.uno_games:
+                game = uno.uno_games[game]
+                if game.channel == message.channel.parent:
+                    await uno.play_card(game, message, emojis)
+                    break
 
 if __name__ == "__main__":
     client.run(config.token)

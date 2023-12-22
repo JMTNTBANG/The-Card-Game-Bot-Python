@@ -5,20 +5,22 @@ import random
 import main
 
 
-colors = {
-    0: "Red",
-    1: "Yellow",
-    2: "Green",
-    3: "Blue",
-    4: "Wild"
-}
+colors = [
+    "red",
+    "yellow",
+    "green",
+    "blue",
+    "wild"
+]
 
-kinds = {
-    0: "Normal",
-    1: "Skip",
-    2: "Reverse",
-    3: "Draw"
-}
+kinds = [
+    "normal",
+    "skip",
+    "reverse",
+    "draw"
+]
+
+uno_games = {}
 
 
 # Classes
@@ -122,12 +124,21 @@ async def show_hands(game: UNO, emojis: dict):
         await player.thread.send(message)
 
 
+async def play_card(game: UNO, message: discord.Message, emojis: dict):
+    color, number_kind = parse.parse("{} {}", message.content)
+    if color.lower() in colors:
+        if number_kind in kinds:
+            await game.channel.send(f"Player Played Special Card {color} {number_kind}")
+        else:
+            await game.channel.send(f"Player Played {color} {number_kind}")
+
+
 async def next_turn(game: UNO, emojis: dict):
     await show_hands(game, emojis)
     await game.channel.send(f"## Current Card: \n"
                             f"# {print_card(game.current_card, emojis)}\n"
                             f"# It is now {game.current_player.user.mention}s Turn!")
-    main.uno_games[game.channel.created_at] = game
+    uno_games[game.channel.created_at] = game
 
 
 async def start_game(owner: discord.Member, guild: discord.Guild, lobby: discord.Message, emojis: dict):
@@ -148,6 +159,6 @@ async def start_game(owner: discord.Member, guild: discord.Guild, lobby: discord
                         game.deck.remove(card)
                     game.members.append(player)
             game.current_player = game.members[0]
-            main.uno_games[game.channel.created_at] = game
+            uno_games[game.channel.created_at.timestamp()] = game
             await next_turn(game, emojis)
             break
