@@ -120,6 +120,10 @@ async def show_hands(game: UNO):
 
 async def next_turn(game: UNO):
     await show_hands(game)
+    await game.channel.send(f"## Current Card: \n{print_card(game.current_card)}\n# It is now {game.current_player.user.mention}s Turn!")
+    main.uno_games[game.channel.created_at] = game
+
+
 async def start_game(owner: discord.Member, guild: discord.Guild, lobby: discord.Message):
     for category in guild.categories:
         if category.name == "UNO":
