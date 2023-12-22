@@ -110,6 +110,16 @@ def join_leave_callback(join: bool, message: discord.Message):
     return callback
 
 
+async def show_hands(game: UNO):
+    for player in game.members:
+        message = ""
+        for card in player.hand:
+            message += print_card(card) + "\n"
+        await player.thread.send(message)
+
+
+async def next_turn(game: UNO):
+    await show_hands(game)
 async def start_game(owner: discord.Member, guild: discord.Guild, lobby: discord.Message):
     for category in guild.categories:
         if category.name == "UNO":
@@ -129,4 +139,5 @@ async def start_game(owner: discord.Member, guild: discord.Guild, lobby: discord
                     game.members.append(player)
             game.current_player = game.members[0]
             main.uno_games[game.channel.created_at] = game
+            await next_turn(game)
             break
