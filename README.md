@@ -24,7 +24,7 @@ Once you have done that, you will need to copy the Bot Token and paste it into c
 {
   "bot-token": "{INSERT BOT TOKEN HERE}",
   "debug-token": "{INSERT DEBUG BOT TOKEN HERE}",
-  "debug": true / false  (Determines which token to use)
+  "debug": bool
 }
 ```
 If you do not want to use the debug features just set `"debug-token"` to the same as `"bot-token"` and `"debug"` to `false` 
