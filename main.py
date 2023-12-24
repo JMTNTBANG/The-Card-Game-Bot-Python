@@ -56,12 +56,24 @@ async def on_ready():
     await tree.sync()
     print("Commands Synced")
     for guild in client.guilds:
+        uno_category = None
         category_exists = False
         for category in guild.categories:
             if category.name == "UNO":
                 category_exists = True
+                uno_category = category
         if not category_exists:
-            await guild.create_category_channel("UNO")
+            uno_category = await guild.create_category_channel("UNO")
+        archive_category = None
+        category_exists = False
+        for category in guild.categories:
+            if category.name == "UNO-ARCHIVE":
+                category_exists = True
+                archive_category = category
+        if not category_exists:
+            archive_category = await guild.create_category_channel("UNO-ARCHIVE")
+        for channel in uno_category.channels:
+            await channel.edit(category=archive_category, reason="Archival", name=f"uno-game-{channel.created_at.timestamp()}")
         if guild.name == "Card Game Bot Server":
             for emoji in guild.emojis:
                 if emoji.animated:
