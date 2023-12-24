@@ -122,4 +122,7 @@ async def on_message(message: discord.Message):
                     break
 
 if __name__ == "__main__":
-    client.run(config.token)
+    token = config.token
+    if config.debug.enabled:
+        token = config.debug.token
+    client.run(token)
