@@ -8,13 +8,21 @@ except ImportError:
 
 
 class Config:
+    class Debug:
+        def __init__(self, debug: bool, token: str):
+            self.enabled = debug
+            self.token = token
+
     def reload(self):
         with open("./config.json", "r") as raw_config:
             raw_config = json.loads(raw_config.read())
             self.token = raw_config["bot-token"]
+            self.debug = self.Debug(raw_config["debug"],
+                                    raw_config["debug-token"])
 
     def __init__(self):
         self.token = ""
+        self.debug = None
         self.reload()
 
 
