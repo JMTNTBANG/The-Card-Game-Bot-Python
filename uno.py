@@ -155,7 +155,7 @@ async def play_card(game: UNO, message: discord.Message, emojis: dict):
                                 or number_kind.isnumeric() and card.number == int(number_kind):
                             if card.color == game.current_card.color \
                                     or card.kind == game.current_card.kind and kinds[card.kind] != "normal" \
-                                    or card.number == game.current_card.number:
+                                    or card.number == game.current_card.number and card.number >= 0:
                                 game.current_card = card
                                 player.hand.remove(card)
                                 await next_turn(game, emojis)
