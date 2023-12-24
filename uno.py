@@ -67,6 +67,7 @@ class UNO:
         self.channel: discord.TextChannel
         self.members = []
         self.current_player: UNO.Player
+        self.owner: UNO.Player
         self.gen_deck()
         first_card = random.choice(self.deck)
         self.deck.remove(first_card)
@@ -115,6 +116,15 @@ def join_leave_callback(join: bool, message: discord.Message):
 
     return callback
 
+async def main_channel_command(game: UNO, message: discord.Message, emojis: dict):
+    if message.content.lower() == "end game":
+        if message.author == game.owner.user:
+            for category in game.guild.categories:
+                if category.name == "UNO-ARCHIVE":
+                    await game.channel.send("`Owner has ended the game.`")
+                    await game.channel.edit(category=category, reason="Archival", name=f"uno-game-{game.channel.created_at.timestamp()}")
+                    uno_games.pop(game.channel.created_at.timestamp())
+
 
 async def show_hands(game: UNO, emojis: dict, specific_player: UNO.Player = None):
     for player in game.members:
@@ -130,7 +140,7 @@ async def next_turn(game: UNO, emojis: dict):
     await game.channel.send(f"## Current Card: \n"
                             f"# {print_card(game.current_card, emojis)}\n"
                             f"# It is now {game.current_player.user.mention}s Turn!")
-    uno_games[game.channel.created_at] = game
+    uno_games[game.channel.created_at.timestamp()] = game
 
 
 async def play_card(game: UNO, message: discord.Message, emojis: dict):
@@ -141,7 +151,7 @@ async def play_card(game: UNO, message: discord.Message, emojis: dict):
                 player.hand.append(drawn_card)
                 game.deck.remove(drawn_card)
                 await show_hands(game, emojis, player)
-                uno_games[game.channel.created_at] = game
+                uno_games[game.channel.created_at.timestamp()] = game
             else:
                 try:
                     color, number_kind = parse.parse("{} {}", message.content)
@@ -181,6 +191,7 @@ async def start_game(owner: discord.Member, guild: discord.Guild, lobby: discord
                         game.deck.remove(card)
                     game.members.append(player)
             game.current_player = game.members[0]
+            game.owner = game.members[0]
             uno_games[game.channel.created_at.timestamp()] = game
             await next_turn(game, emojis)
             break

@@ -126,12 +126,17 @@ async def on_reaction_add(reaction, user):
 @client.event
 async def on_message(message: discord.Message):
     if not message.author.bot:
-        if isinstance(message.channel, discord.Thread):
-            for game in uno.uno_games:
-                game = uno.uno_games[game]
+        for game in uno.uno_games:
+            game = uno.uno_games[game]
+            if isinstance(message.channel, discord.Thread):
                 if game.channel == message.channel.parent:
                     await uno.play_card(game, message, emojis)
                     break
+            else:
+                if game.channel == message.channel:
+                    await uno.main_channel_command(game, message, emojis)
+                    break
+
 
 if __name__ == "__main__":
     token = config.token
